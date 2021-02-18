@@ -1,37 +1,37 @@
 <?php
 
-require_once './api/models/User.php';
+require_once './api/models/Schedule.php';
 
-class UserController
+class ScheduleController
 {
 
     private $db;
     private $requestMethod;
-    private $userId;
-    private $user;
+    private $scheduleId;
+    private $schedule;
 
-    public function __construct($db, $requestMethod, $userId)
+    public function __construct($db, $requestMethod, $scheduleId)
     {
         $this->db = $db;
         $this->requestMethod = $requestMethod;
-        $this->userId = $userId;
-        $this->user = new User($db);
+        $this->scheduleId = $scheduleId;
+        $this->schedule = new Schedule($db);
     }
 
     public function request()
     {
         switch ($this->requestMethod) {
             case 'GET':
-                $response = $this->userId ? $this->getEmployee($this->userId) : $this->getAllEmployees();
+                $response = $this->scheduleId ? $this->getScheduleById($this->scheduleId) : $this->getAllSchedules();
                 break;
             case 'POST':
                 $response = $this->create();
                 break;
             case 'PATCH':
-                $response = $this->update($this->userId);
+                $response = $this->update($this->scheduleId);
                 break;
             case 'DELETE':
-                $response = $this->delete($this->userId);
+                $response = $this->delete($this->scheduleId);
                 break;
             default:
                 $response = $this->notFound();
@@ -45,9 +45,9 @@ class UserController
         }
     }
 
-    public function getEmployee($userId)
+    public function getScheduleById($scheduleId)
     {
-        $result = $this->user->findById($userId);
+        $result = $this->schedule->findById($scheduleId);
 
         $response['status_code_header'] = 'HTTP/1.1 200 OK';
         $response['body'] = json_encode($result);
@@ -55,9 +55,9 @@ class UserController
         return $response;
     }
 
-    public function getAllEmployees()
+    public function getAllSchedules()
     {
-        $result = $this->user->findAll();
+        $result = $this->schedule->findAll();
 
         $response['status_code_header'] = 'HTTP/1.1 200 OK';
         $response['body'] = json_encode($result);
@@ -69,14 +69,14 @@ class UserController
     {
         $data = json_decode(file_get_contents('php://input'), TRUE);
 
-        $this->user->create($data);
+        $this->schedule->create($data);
     }
 
     public function update($id)
     {
-        if ($this->user->findById($id)) {
+        if ($this->schedule->findById($id)) {
             $data = json_decode(file_get_contents('php://input'), TRUE);
-            $this->user->update($id, $data);
+            $this->schedule->update($id, $data);
 
             $response['status_code_header'] = 'HTTP/1.1 204 No Content';
             $response['body'] = null;
@@ -89,8 +89,8 @@ class UserController
 
     public function delete($id)
     {
-        if ($this->user->findById($id)) {
-            $this->user->delete($id);
+        if ($this->schedule->findById($id)) {
+            $this->schedule->delete($id);
 
             $response['status_code_header'] = 'HTTP/1.1 204 No Content';
             $response['body'] = null;

@@ -2,8 +2,7 @@
 include_once $_SERVER['DOCUMENT_ROOT'] . '/config/Database.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/api/controllers/EmployeeController.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/api/controllers/UserController.php';
-
-require_once './api/models/User.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/api/controllers/ScheduleController.php';
 
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
@@ -15,24 +14,28 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 switch ($uri[1]) {
     case 'employee':
-        $employeeId = null;
-        if (isset($uri[2])) {
-            $employeeId = (int) $uri[2];
-        }
+        // endpoint: employee/{ID}
+        $employeeId = (int) $uri[2] ?? null;
 
         $database = new Database();
         $dbConnection = $database->connect();
+
+        // endpoint: employee/{EMPLOYEE_ID}/schedule/{SCHEDULE_ID}
+        if ($employeeId && $uri[3] == 'schedule') {
+            $scheduleController = new ScheduleController($dbConnection, $requestMethod, $employeeId);
+            $scheduleController->request();
+
+            break;
+        }
 
         $employeeController = new EmployeeController($dbConnection, $requestMethod, $employeeId);
         $employeeController->request();
 
         break;
     case 'user':
-        $userId = null;
-        if (isset($uri[2])) {
-            $userId = (int) $uri[2];
-        }
-        
+        // endpoint: user/{USER_ID}
+        $userId = (int) $uri[2] ?? null;
+
         $database = new Database();
         $dbConnection = $database->connect();
 

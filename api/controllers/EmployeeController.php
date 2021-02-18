@@ -34,7 +34,7 @@ class EmployeeController
                 $response = $this->delete($this->employeeId);
                 break;
             default:
-                $response = $this->requestNotFound();
+                $response = $this->notFound();
                 break;
         }
 
@@ -72,17 +72,36 @@ class EmployeeController
         $this->employee->create($data);
     }
 
-    public function update()
+    public function update($id)
     {
-        # code...
+        if ($this->employee->findById($id)) {
+            $data = json_decode(file_get_contents('php://input'), TRUE);
+            $this->employee->update($id, $data);
+
+            $response['status_code_header'] = 'HTTP/1.1 204 No Content';
+            $response['body'] = null;
+
+            return $response;
+        }
+
+        return $this->notFound();
     }
 
-    public function delete()
+    public function delete($id)
     {
-        # code...
+        if ($this->employee->findById($id)) {
+            $this->employee->delete($id);
+
+            $response['status_code_header'] = 'HTTP/1.1 204 No Content';
+            $response['body'] = null;
+
+            return $response;
+        }
+
+        return $this->notFound();
     }
 
-    public function requestNotFound()
+    public function notFound()
     {
         $response['status_code_header'] = 'HTTP/1.1 404 Not Found';
         $response['body'] = null;

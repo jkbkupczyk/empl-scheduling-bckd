@@ -1,11 +1,9 @@
 <?php
 
-require_once 'UserRole.php';
-
-class Employee
+class Schedule
 {
     private $conn;
-    private $table = "Employees";
+    private $table = "Schedules";
 
     public function __construct($db)
     {
@@ -14,23 +12,25 @@ class Employee
 
     public function create($data)
     {
-        $qry = 'INSERT INTO ' . $this->table . ' (name, surname, email, age, status) VALUES (:name, :surname, :email, :age, :status)';
+        $qry = 'INSERT INTO ' . $this->table . ' (username, email, pass, name, surname, role) VALUES (:username, :email, :pass, :name, :surname, :role)';
 
         $stmt = $this->conn->prepare($qry);
 
+        $data['username'] = htmlspecialchars(strip_tags($data['username']));
+        $data['email'] = htmlspecialchars(strip_tags($data['email']));
+        $data['pass'] = htmlspecialchars(strip_tags($data['pass']));
         $data['name'] = htmlspecialchars(strip_tags($data['name']));
         $data['surname'] = htmlspecialchars(strip_tags($data['surname']));
-        $data['email'] = htmlspecialchars(strip_tags($data['email']));
-        $data['age'] = htmlspecialchars(strip_tags($data['age']));
-        $data['status'] = htmlspecialchars(strip_tags($data['status']));
+        $data['role'] = htmlspecialchars(strip_tags($data['role']));
 
         $stmt->execute(
             array(
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'pass' => $data['pass'],
                 'name' => $data['name'],
                 'surname' => $data['surname'],
-                'email' => $data['email'],
-                'age' => $data['age'],
-                'status' => $data['status']
+                'role' => $data['role']
             )
         );
 
@@ -39,7 +39,7 @@ class Employee
 
     public function findAll()
     {
-        $qry = 'SELECT e.id, e.name, e.surname, e.email, e.age, e.status, e.createdAt FROM ' . $this->table . ' e';
+        $qry = 'SELECT u.username, u.email, u.name, u.surname, u.role FROM ' . $this->table . ' u';
 
         $stmt = $this->conn->prepare($qry);
         $stmt->execute();
@@ -51,23 +51,10 @@ class Employee
 
     public function findById($id)
     {
-        $qry = 'SELECT e.id, e.name, e.surname, e.email, e.age, e.status, e.createdAt FROM ' . $this->table . ' e WHERE e.id = ? LIMIT 1';
+        $qry = 'SELECT u.username, u.email, u.name, u.surname, u.role FROM ' . $this->table . ' u WHERE u.id = ? LIMIT 1';
 
         $stmt = $this->conn->prepare($qry);
         $stmt->bindParam(1, $id);
-        $stmt->execute();
-
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $data;
-    }
-
-    public function findByName($name)
-    {
-        $qry = 'SELECT e.id, e.name, e.surname, e.email, e.age, e.status, e.createdAt FROM ' . $this->table . ' e WHERE e.name = ? LIMIT 1';
-
-        $stmt = $this->conn->prepare($qry);
-        $stmt->bindParam(1, $name);
         $stmt->execute();
 
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -79,30 +66,33 @@ class Employee
     {
         $qry = 'UPDATE ' . $this->table . '
             SET
+                username = :username,
+                email = :email,
+                pass = :pass,
                 name = :name,
                 surname = :surname,
-                email = :email,
-                age = :age,
-                status = :status
+                role = :role
             WHERE
                 id = :id';
 
         $stmt = $this->conn->prepare($qry);
 
+        $data['username'] = htmlspecialchars(strip_tags($data['username']));
+        $data['email'] = htmlspecialchars(strip_tags($data['email']));
+        $data['pass'] = htmlspecialchars(strip_tags($data['pass']));
         $data['name'] = htmlspecialchars(strip_tags($data['name']));
         $data['surname'] = htmlspecialchars(strip_tags($data['surname']));
-        $data['email'] = htmlspecialchars(strip_tags($data['email']));
-        $data['age'] = htmlspecialchars(strip_tags($data['age']));
-        $data['status'] = htmlspecialchars(strip_tags($data['status']));
+        $data['role'] = htmlspecialchars(strip_tags($data['role']));
 
         $stmt->execute(
             array(
                 'id' => (int) $id,
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'pass' => $data['pass'],
                 'name' => $data['name'],
                 'surname' => $data['surname'],
-                'email' => $data['email'],
-                'age' => $data['age'],
-                'status' => $data['status']
+                'role' => $data['role']
             )
         );
 
