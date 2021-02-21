@@ -39,19 +39,19 @@ class User
 
     public function findAll()
     {
-        $qry = 'SELECT u.username, u.email, u.name, u.surname, u.role FROM ' . $this->table . ' u';
+        $qry = 'SELECT u.id, u.username, u.email, u.name, u.surname, u.role FROM ' . $this->table . ' u';
 
         $stmt = $this->conn->prepare($qry);
         $stmt->execute();
 
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $data;
+        return $data ? $data : null;
     }
 
     public function findById($id)
     {
-        $qry = 'SELECT u.username, u.email, u.name, u.surname, u.role FROM ' . $this->table . ' u WHERE u.id = ? LIMIT 1';
+        $qry = 'SELECT u.id, u.username, u.email, u.name, u.surname, u.role, u.pass FROM ' . $this->table . ' u WHERE u.id = ?';
 
         $stmt = $this->conn->prepare($qry);
         $stmt->bindParam(1, $id);
@@ -59,7 +59,7 @@ class User
 
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $data;
+        return $data ? $data : null;
     }
 
     public function update($id, $data)

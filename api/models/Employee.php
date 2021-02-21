@@ -46,12 +46,12 @@ class Employee
 
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $data;
+        return $data ? $data : null;
     }
 
     public function findById($id)
     {
-        $qry = 'SELECT e.id, e.name, e.surname, e.email, e.age, e.status, e.createdAt FROM ' . $this->table . ' e WHERE e.id = ? LIMIT 1';
+        $qry = 'SELECT e.id, e.name, e.surname, e.email, e.age, e.status, e.createdAt FROM ' . $this->table . ' e WHERE e.id = ?';
 
         $stmt = $this->conn->prepare($qry);
         $stmt->bindParam(1, $id);
@@ -59,12 +59,12 @@ class Employee
 
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $data;
+        return $data ? $data : null;
     }
 
     public function findByName($name)
     {
-        $qry = 'SELECT e.id, e.name, e.surname, e.email, e.age, e.status, e.createdAt FROM ' . $this->table . ' e WHERE e.name = ? LIMIT 1';
+        $qry = 'SELECT e.id, e.name, e.surname, e.email, e.age, e.status, e.createdAt FROM ' . $this->table . ' e WHERE e.name = ?';
 
         $stmt = $this->conn->prepare($qry);
         $stmt->bindParam(1, $name);
@@ -72,7 +72,7 @@ class Employee
 
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $data;
+        return $data ? $data : null;
     }
 
     public function update($id, $data)

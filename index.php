@@ -15,14 +15,16 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 switch ($uri[1]) {
     case 'employee':
         // endpoint: employee/{ID}
-        $employeeId = (int) $uri[2] ?? null;
+        $employeeId = isset($uri[2]) ? (int) $uri[2] : null;
 
         $database = new Database();
         $dbConnection = $database->connect();
 
         // endpoint: employee/{EMPLOYEE_ID}/schedule/{SCHEDULE_ID}
         if ($employeeId && $uri[3] == 'schedule') {
-            $scheduleController = new ScheduleController($dbConnection, $requestMethod, $employeeId);
+            $scheduleId = isset($uri[4]) ? (int) $uri[4] : null;
+
+            $scheduleController = new ScheduleController($dbConnection, $requestMethod, $scheduleId, $employeeId);
             $scheduleController->request();
 
             break;
@@ -34,7 +36,7 @@ switch ($uri[1]) {
         break;
     case 'user':
         // endpoint: user/{USER_ID}
-        $userId = (int) $uri[2] ?? null;
+        $userId = isset($uri[2]) ? (int) $uri[2] : null;
 
         $database = new Database();
         $dbConnection = $database->connect();

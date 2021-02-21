@@ -12,7 +12,7 @@ class Schedule
 
     public function create($data)
     {
-        $qry = 'INSERT INTO ' . $this->table . ' (username, email, pass, name, surname, role) VALUES (:username, :email, :pass, :name, :surname, :role)';
+        $qry = 'INSERT INTO ' . $this->table . ' (scheduleId, scheduleName, employeeId, date) VALUES (:scheduleId, :scheduleName, :pass, :name, :surname, :role)';
 
         $stmt = $this->conn->prepare($qry);
 
@@ -37,62 +37,65 @@ class Schedule
         return $stmt->rowCount();
     }
 
-    public function findAll()
+    public function findAll($employeeId)
     {
-        $qry = 'SELECT u.username, u.email, u.name, u.surname, u.role FROM ' . $this->table . ' u';
+        $qry = 'SELECT s.scheduleId, s.scheduleName, e.name, e.surname, s.date 
+                FROM ' . $this->table . ' s 
+                INNER JOIN employees e ON s.employeeId = e.id 
+                WHERE e.id = ? ORDER BY s.date';
 
         $stmt = $this->conn->prepare($qry);
+        $stmt->bindParam(1, $employeeId);
         $stmt->execute();
 
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $data;
+        return $data ? $data : null;
     }
 
-    public function findById($id)
+    public function findById($employeeId, $scheduleId)
     {
-        $qry = 'SELECT u.username, u.email, u.name, u.surname, u.role FROM ' . $this->table . ' u WHERE u.id = ? LIMIT 1';
+        $qry = 'SELECT s.scheduleId, s.scheduleName, e.name, e.surname, s.date, s.time
+                FROM ' . $this->table . ' s 
+                INNER JOIN employees e ON s.employeeId = e.id 
+                WHERE e.id = :employeeId AND s.scheduleId = :scheduleId';
 
         $stmt = $this->conn->prepare($qry);
-        $stmt->bindParam(1, $id);
+        $stmt->bindParam(':employeeId', $employeeId);
+        $stmt->bindParam(':scheduleId', $scheduleId);
+
         $stmt->execute();
 
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $data;
+        return $data ? $data : null;
     }
 
-    public function update($id, $data)
+    public function update($scheduleId, $employeeId, $data)
     {
         $qry = 'UPDATE ' . $this->table . '
             SET
-                username = :username,
-                email = :email,
-                pass = :pass,
-                name = :name,
-                surname = :surname,
-                role = :role
+                scheduleName = :scheduleName,
+                employeeId = :employeeId,
+                date = :date,
+                time = :time,
             WHERE
-                id = :id';
+                scheduleId = :scheduleId';
 
         $stmt = $this->conn->prepare($qry);
 
-        $data['username'] = htmlspecialchars(strip_tags($data['username']));
-        $data['email'] = htmlspecialchars(strip_tags($data['email']));
-        $data['pass'] = htmlspecialchars(strip_tags($data['pass']));
-        $data['name'] = htmlspecialchars(strip_tags($data['name']));
-        $data['surname'] = htmlspecialchars(strip_tags($data['surname']));
-        $data['role'] = htmlspecialchars(strip_tags($data['role']));
+        $data['scheduleName'] = htmlspecialchars(strip_tags($data['scheduleName']));
+        $data['employeeId'] = htmlspecialchars(strip_tags($data['employeeId']));
+        $data['date'] = htmlspecialchars(strip_tags($data['date']));
+        $data['time'] = htmlspecialchars(strip_tags($data['time']));
 
         $stmt->execute(
             array(
-                'id' => (int) $id,
-                'username' => $data['username'],
-                'email' => $data['email'],
-                'pass' => $data['pass'],
-                'name' => $data['name'],
-                'surname' => $data['surname'],
-                'role' => $data['role']
+                'scheduleId' => (int) $scheduleId,
+                'scheduleName' => $data['username'],
+                'employeeId' => $data['email'],
+                'date' => $data['pass'],
+                'time' => $data['name']
             )
         );
 

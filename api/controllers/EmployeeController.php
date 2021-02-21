@@ -34,7 +34,7 @@ class EmployeeController
                 $response = $this->delete($this->employeeId);
                 break;
             default:
-                $response = $this->notFound();
+                $response = $this->resourceNotFound();
                 break;
         }
 
@@ -84,7 +84,7 @@ class EmployeeController
             return $response;
         }
 
-        return $this->notFound();
+        return $this->resourceNotFound();
     }
 
     public function delete($id)
@@ -98,14 +98,18 @@ class EmployeeController
             return $response;
         }
 
-        return $this->notFound();
+        return $this->resourceNotFound();
     }
 
-    public function notFound()
+    public function resourceNotFound()
     {
         $response['status_code_header'] = 'HTTP/1.1 404 Not Found';
         $response['body'] = null;
 
         return $response;
+    }
+
+    public function methodNotFound()
+    {
     }
 }

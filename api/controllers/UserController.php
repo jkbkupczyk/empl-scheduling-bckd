@@ -34,7 +34,7 @@ class UserController
                 $response = $this->delete($this->userId);
                 break;
             default:
-                $response = $this->notFound();
+                $response = $this->resourceNotFound();
                 break;
         }
 
@@ -84,7 +84,7 @@ class UserController
             return $response;
         }
 
-        return $this->notFound();
+        return $this->resourceNotFound();
     }
 
     public function delete($id)
@@ -98,10 +98,10 @@ class UserController
             return $response;
         }
 
-        return $this->notFound();
+        return $this->resourceNotFound();
     }
 
-    public function notFound()
+    public function resourceNotFound()
     {
         $response['status_code_header'] = 'HTTP/1.1 404 Not Found';
         $response['body'] = null;
