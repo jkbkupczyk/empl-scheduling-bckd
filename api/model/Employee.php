@@ -1,6 +1,7 @@
 <?php
 
 require_once 'UserRole.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/utils/Utils.php';
 
 class Employee
 {
@@ -18,11 +19,7 @@ class Employee
 
         $stmt = $this->conn->prepare($qry);
 
-        $data['name'] = htmlspecialchars(strip_tags($data['name']));
-        $data['surname'] = htmlspecialchars(strip_tags($data['surname']));
-        $data['email'] = htmlspecialchars(strip_tags($data['email']));
-        $data['age'] = htmlspecialchars(strip_tags($data['age']));
-        $data['status'] = htmlspecialchars(strip_tags($data['status']));
+        $data = Utils::sanitizeInput($data);
 
         $stmt->execute(
             array(
@@ -89,11 +86,7 @@ class Employee
 
         $stmt = $this->conn->prepare($qry);
 
-        $data['name'] = htmlspecialchars(strip_tags($data['name']));
-        $data['surname'] = htmlspecialchars(strip_tags($data['surname']));
-        $data['email'] = htmlspecialchars(strip_tags($data['email']));
-        $data['age'] = htmlspecialchars(strip_tags($data['age']));
-        $data['status'] = htmlspecialchars(strip_tags($data['status']));
+        $data = Utils::sanitizeInput($data);
 
         $stmt->execute(
             array(

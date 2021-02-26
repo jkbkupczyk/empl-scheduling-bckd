@@ -1,6 +1,6 @@
 <?php
 
-require_once './api/models/Employee.php';
+require_once './api/model/Employee.php';
 
 class EmployeeController
 {
@@ -69,7 +69,13 @@ class EmployeeController
     {
         $data = json_decode(file_get_contents('php://input'), TRUE);
 
-        $this->employee->create($data);
+        if ($this->employee->create($data)) {
+            $response['status_code_header'] = 'HTTP/1.1 204 No Content';
+            $response['body'] = null;
+        } else {
+            $response['status_code_header'] = 'HTTP/1.1 409 Conflict';
+            $response['body'] = null;
+        }
     }
 
     public function update($id)

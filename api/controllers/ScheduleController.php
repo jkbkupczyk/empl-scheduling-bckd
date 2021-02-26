@@ -1,6 +1,6 @@
 <?php
 
-require_once './api/models/Schedule.php';
+require_once './api/model/Schedule.php';
 
 class ScheduleController
 {
@@ -68,7 +68,13 @@ class ScheduleController
     {
         $data = json_decode(file_get_contents('php://input'), TRUE);
 
-        $this->schedule->create($data);
+        if ($this->schedule->create($data)) {
+            $response['status_code_header'] = 'HTTP/1.1 204 No Content';
+            $response['body'] = null;
+        } else {
+            $response['status_code_header'] = 'HTTP/1.1 409 Conflict';
+            $response['body'] = null;
+        }
     }
 
     public function update($scheduleId)

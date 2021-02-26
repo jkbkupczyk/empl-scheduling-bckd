@@ -1,5 +1,7 @@
 <?php
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/utils/Utils.php';
+
 class User
 {
     private $conn;
@@ -16,18 +18,15 @@ class User
 
         $stmt = $this->conn->prepare($qry);
 
-        $data['username'] = htmlspecialchars(strip_tags($data['username']));
-        $data['email'] = htmlspecialchars(strip_tags($data['email']));
-        $data['pass'] = htmlspecialchars(strip_tags($data['pass']));
-        $data['name'] = htmlspecialchars(strip_tags($data['name']));
-        $data['surname'] = htmlspecialchars(strip_tags($data['surname']));
-        $data['role'] = htmlspecialchars(strip_tags($data['role']));
+        $data = Utils::sanitizeInput($data);
+
+        $hashedPass = password_hash($data['pass'], PASSWORD_DEFAULT);
 
         $stmt->execute(
             array(
                 'username' => $data['username'],
                 'email' => $data['email'],
-                'pass' => $data['pass'],
+                'pass' => $hashedPass,
                 'name' => $data['name'],
                 'surname' => $data['surname'],
                 'role' => $data['role']
@@ -77,12 +76,7 @@ class User
 
         $stmt = $this->conn->prepare($qry);
 
-        $data['username'] = htmlspecialchars(strip_tags($data['username']));
-        $data['email'] = htmlspecialchars(strip_tags($data['email']));
-        $data['pass'] = htmlspecialchars(strip_tags($data['pass']));
-        $data['name'] = htmlspecialchars(strip_tags($data['name']));
-        $data['surname'] = htmlspecialchars(strip_tags($data['surname']));
-        $data['role'] = htmlspecialchars(strip_tags($data['role']));
+        $data = Utils::sanitizeInput($data);
 
         $stmt->execute(
             array(

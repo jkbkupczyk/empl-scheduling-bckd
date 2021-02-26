@@ -1,12 +1,12 @@
 <?php
-include_once $_SERVER['DOCUMENT_ROOT'] . '/config/Database.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/api/controllers/EmployeeController.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/api/controllers/UserController.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/api/controllers/ScheduleController.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . 'config/Database.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . 'controllers/EmployeeController.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . 'controllers/UserController.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . 'controllers/ScheduleController.php';
 
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET,POST,PATCH,DELETE");
+header("Access-Control-Allow-Methods: GET, POST, PATCH, DELETE");
 header("Access-Control-Max-Age: 3600");
 
 $uri = explode('/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
@@ -48,3 +48,5 @@ switch ($uri[1]) {
         exit();
         break;
 }
+
+$dbConnection = null;

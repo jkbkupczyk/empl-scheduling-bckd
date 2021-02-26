@@ -1,5 +1,7 @@
 <?php
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/utils/Utils.php';
+
 class Schedule
 {
     private $conn;
@@ -16,12 +18,7 @@ class Schedule
 
         $stmt = $this->conn->prepare($qry);
 
-        $data['username'] = htmlspecialchars(strip_tags($data['username']));
-        $data['email'] = htmlspecialchars(strip_tags($data['email']));
-        $data['pass'] = htmlspecialchars(strip_tags($data['pass']));
-        $data['name'] = htmlspecialchars(strip_tags($data['name']));
-        $data['surname'] = htmlspecialchars(strip_tags($data['surname']));
-        $data['role'] = htmlspecialchars(strip_tags($data['role']));
+        $data = Utils::sanitizeInput($data);
 
         $stmt->execute(
             array(
@@ -84,16 +81,13 @@ class Schedule
 
         $stmt = $this->conn->prepare($qry);
 
-        $data['scheduleName'] = htmlspecialchars(strip_tags($data['scheduleName']));
-        $data['employeeId'] = htmlspecialchars(strip_tags($data['employeeId']));
-        $data['date'] = htmlspecialchars(strip_tags($data['date']));
-        $data['time'] = htmlspecialchars(strip_tags($data['time']));
+        $data = $this->util::sanitizeInput($data);
 
         $stmt->execute(
             array(
                 'scheduleId' => (int) $scheduleId,
                 'scheduleName' => $data['username'],
-                'employeeId' => $data['email'],
+                'employeeId' => $employeeId,
                 'date' => $data['pass'],
                 'time' => $data['name']
             )

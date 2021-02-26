@@ -1,6 +1,6 @@
 <?php
 
-require_once './api/models/User.php';
+require_once './api/model/User.php';
 
 class UserController
 {
@@ -69,7 +69,13 @@ class UserController
     {
         $data = json_decode(file_get_contents('php://input'), TRUE);
 
-        $this->user->create($data);
+        if ($this->user->create($data)) {
+            $response['status_code_header'] = 'HTTP/1.1 204 No Content';
+            $response['body'] = null;
+        } else {
+            $response['status_code_header'] = 'HTTP/1.1 409 Conflict';
+            $response['body'] = null;
+        }
     }
 
     public function update($id)
