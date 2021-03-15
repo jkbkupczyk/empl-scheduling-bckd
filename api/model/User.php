@@ -12,13 +12,11 @@ class User
         $this->conn = $db;
     }
 
-    public function create($data)
+    public function create($data): int
     {
         $qry = 'INSERT INTO ' . $this->table . ' (username, email, pass, name, surname, role) VALUES (:username, :email, :pass, :name, :surname, :role)';
 
         $stmt = $this->conn->prepare($qry);
-
-        $data = Utils::sanitizeInput($data);
 
         $hashedPass = password_hash($data['pass'], PASSWORD_DEFAULT);
 
@@ -61,7 +59,7 @@ class User
         return $data ? $data : null;
     }
 
-    public function update($id, $data)
+    public function update($id, $data): int
     {
         $qry = 'UPDATE ' . $this->table . '
             SET
@@ -75,8 +73,6 @@ class User
                 id = :id';
 
         $stmt = $this->conn->prepare($qry);
-
-        $data = Utils::sanitizeInput($data);
 
         $stmt->execute(
             array(
@@ -93,7 +89,7 @@ class User
         return $stmt->rowCount();
     }
 
-    public function delete($id)
+    public function delete($id): int
     {
         $qry = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
 
@@ -104,5 +100,20 @@ class User
         $stmt->execute();
 
         return $stmt->rowCount();
+    }
+
+    public function exists($email, $username): bool
+    {
+        $qry = 'SELECT u.email, u.username FROM ' . $this->table . ' u WHERE u.email = :email OR u.username = :username';
+
+        $stmt = $this->conn->prepare($qry);
+        $stmt->execute(
+            array(
+                'email' => $email,
+                'username' => $username
+            )
+        );
+
+        return $stmt->rowCount() > 0 ? true : false;
     }
 }

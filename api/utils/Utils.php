@@ -4,8 +4,10 @@ class Utils
 {
     public static function sanitizeInput($data)
     {
-        foreach ($data as $k => $val) {
-            $val = htmlspecialchars(strip_tags($val));
+        if (is_array($data) || is_object($data)) {
+            foreach ($data as $k => $val) {
+                $val = htmlspecialchars($val);
+            }
         }
 
         return $data;
@@ -13,6 +15,11 @@ class Utils
 
     public static function validateInput($data)
     {
+    }
+
+    public function validateEmail($email): bool
+    {
+        return filter_var(filter_var($email, FILTER_SANITIZE_EMAIL), FILTER_VALIDATE_EMAIL);
     }
 
     public function validatePassword($password): bool

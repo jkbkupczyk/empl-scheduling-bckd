@@ -1,7 +1,7 @@
 <?php
 
 require_once 'UserRole.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/api/utils/Utils.php';
+include_once "./api/utils/Utils.php";
 
 class Employee
 {
@@ -13,13 +13,11 @@ class Employee
         $this->conn = $db;
     }
 
-    public function create($data)
+    public function create($data): int
     {
         $qry = 'INSERT INTO ' . $this->table . ' (name, surname, email, age, status) VALUES (:name, :surname, :email, :age, :status)';
 
         $stmt = $this->conn->prepare($qry);
-
-        $data = Utils::sanitizeInput($data);
 
         $stmt->execute(
             array(
@@ -72,7 +70,7 @@ class Employee
         return $data ? $data : null;
     }
 
-    public function update($id, $data)
+    public function update($id, $data): int
     {
         $qry = 'UPDATE ' . $this->table . '
             SET
@@ -85,8 +83,6 @@ class Employee
                 id = :id';
 
         $stmt = $this->conn->prepare($qry);
-
-        $data = Utils::sanitizeInput($data);
 
         $stmt->execute(
             array(
@@ -102,7 +98,7 @@ class Employee
         return $stmt->rowCount();
     }
 
-    public function delete($id)
+    public function delete($id): int
     {
         $qry = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
 

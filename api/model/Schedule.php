@@ -12,22 +12,18 @@ class Schedule
         $this->conn = $db;
     }
 
-    public function create($data)
+    public function create($data, $employeeId): int
     {
-        $qry = 'INSERT INTO ' . $this->table . ' (scheduleId, scheduleName, employeeId, date) VALUES (:scheduleId, :scheduleName, :pass, :name, :surname, :role)';
+        $qry = 'INSERT INTO ' . $this->table . ' (scheduleName, employeeId, date, time) VALUES (:scheduleName, :employeeId, :date, :time)';
 
         $stmt = $this->conn->prepare($qry);
 
-        $data = Utils::sanitizeInput($data);
-
         $stmt->execute(
             array(
-                'username' => $data['username'],
-                'email' => $data['email'],
-                'pass' => $data['pass'],
-                'name' => $data['name'],
-                'surname' => $data['surname'],
-                'role' => $data['role']
+                'scheduleName' => $data['scheduleName'],
+                'employeeId' => (int) $employeeId,
+                'date' => $data['date'],
+                'time' => $data['time']
             )
         );
 
@@ -52,8 +48,7 @@ class Schedule
 
     public function findById($employeeId, $scheduleId)
     {
-        $qry = 'SELECT s.scheduleId, s.scheduleName, e.name, e.surname, s.date, s.time
-                FROM ' . $this->table . ' s 
+        $qry = 'SELECT s.scheduleId, s.scheduleName, e.name, e.surname, s.date, sh
                 INNER JOIN employees e ON s.employeeId = e.id 
                 WHERE e.id = :employeeId AND s.scheduleId = :scheduleId';
 
@@ -68,7 +63,7 @@ class Schedule
         return $data ? $data : null;
     }
 
-    public function update($scheduleId, $employeeId, $data)
+    public function update($scheduleId, $employeeId, $data): int
     {
         $qry = 'UPDATE ' . $this->table . '
             SET
@@ -80,8 +75,6 @@ class Schedule
                 scheduleId = :scheduleId';
 
         $stmt = $this->conn->prepare($qry);
-
-        $data = $this->util::sanitizeInput($data);
 
         $stmt->execute(
             array(
@@ -96,7 +89,7 @@ class Schedule
         return $stmt->rowCount();
     }
 
-    public function delete($id)
+    public function delete($id): int
     {
         $qry = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
 

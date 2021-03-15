@@ -1,14 +1,15 @@
 <?php
 
-require_once './api/model/Employee.php';
+include_once "./api/model/Employee.php";
 
 class EmployeeController
 {
-
     private $db;
     private $requestMethod;
     private $employeeId;
     private $employee;
+    private $responseCode;
+    private $responseBody;
 
     public function __construct($db, $requestMethod, $employeeId)
     {
@@ -22,26 +23,39 @@ class EmployeeController
     {
         switch ($this->requestMethod) {
             case 'GET':
-                $response = $this->employeeId ? $this->getEmployee($this->employeeId) : $this->getAllEmployees();
+                $this->employeeId ? $this->getEmployee($this->employeeId) : $this->getAllEmployees();
                 break;
             case 'POST':
-                $response = $this->create();
+                $this->create();
                 break;
             case 'PATCH':
-                $response = $this->update($this->employeeId);
+                $this->update($this->employeeId);
                 break;
             case 'DELETE':
-                $response = $this->delete($this->employeeId);
+                $this->delete($this->employeeId);
                 break;
             default:
-                $response = $this->resourceNotFound();
+                $this->methodNotFound();
                 break;
         }
 
-        header($response['status_code_header']);
+        header($this->responseCode);
 
-        if ($response['body']) {
-            echo $response['body'];
+        if ($this->responseBody) {
+            echo $this->responseBody;
+        }
+    }
+
+    public function create()
+    {
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if ($this->employee->create($data)) {
+            $this->responseCode = 'HTTP/1.1 204 No Content';
+            $this->responseBody = null;
+        } else {
+            $this->responseCode = 'HTTP/1.1 409 Conflict';
+            $this->responseBody = null;
         }
     }
 
@@ -49,33 +63,16 @@ class EmployeeController
     {
         $result = $this->employee->findById($employeeId);
 
-        $response['status_code_header'] = 'HTTP/1.1 200 OK';
-        $response['body'] = json_encode($result);
-
-        return $response;
+        $this->responseCode = 'HTTP/1.1 200 OK';
+        $this->responseBody = json_encode($result);
     }
 
     public function getAllEmployees()
     {
         $result = $this->employee->findAll();
 
-        $response['status_code_header'] = 'HTTP/1.1 200 OK';
-        $response['body'] = json_encode($result);
-
-        return $response;
-    }
-
-    public function create()
-    {
-        $data = json_decode(file_get_contents('php://input'), TRUE);
-
-        if ($this->employee->create($data)) {
-            $response['status_code_header'] = 'HTTP/1.1 204 No Content';
-            $response['body'] = null;
-        } else {
-            $response['status_code_header'] = 'HTTP/1.1 409 Conflict';
-            $response['body'] = null;
-        }
+        $this->responseCode = 'HTTP/1.1 200 OK';
+        $this->responseBody = json_encode($result);
     }
 
     public function update($id)
@@ -84,10 +81,8 @@ class EmployeeController
             $data = json_decode(file_get_contents('php://input'), TRUE);
             $this->employee->update($id, $data);
 
-            $response['status_code_header'] = 'HTTP/1.1 204 No Content';
-            $response['body'] = null;
-
-            return $response;
+            $this->responseCode = 'HTTP/1.1 204 No Content';
+            $this->responseBody = null;
         }
 
         return $this->resourceNotFound();
@@ -98,10 +93,8 @@ class EmployeeController
         if ($this->employee->findById($id)) {
             $this->employee->delete($id);
 
-            $response['status_code_header'] = 'HTTP/1.1 204 No Content';
-            $response['body'] = null;
-
-            return $response;
+            $this->responseCode = 'HTTP/1.1 204 No Content';
+            $this->responseBody = null;
         }
 
         return $this->resourceNotFound();
@@ -109,13 +102,13 @@ class EmployeeController
 
     public function resourceNotFound()
     {
-        $response['status_code_header'] = 'HTTP/1.1 404 Not Found';
-        $response['body'] = null;
-
-        return $response;
+        $this->responseCode = 'HTTP/1.1 404 Not Found';
+        $this->responseBody = null;
     }
 
     public function methodNotFound()
     {
+        $this->responseCode = 'HTTP/1.1 405 Method Not Allowed';
+        $this->responseBody = json_encode(array("msg" => "Method Not Allowed, try again with with different method"));
     }
 }

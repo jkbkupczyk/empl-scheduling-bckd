@@ -1,15 +1,16 @@
 <?php
 
-require_once './api/model/Schedule.php';
+include_once "./api/model/Schedule.php";
 
 class ScheduleController
 {
-
     private $db;
     private $requestMethod;
     private $scheduleId;
     private $schedule;
     private $employeeId;
+    private $responseCode;
+    private $responseBody;
 
     public function __construct($db, $requestMethod, $scheduleId, $employeeId)
     {
@@ -24,57 +25,56 @@ class ScheduleController
     {
         switch ($this->requestMethod) {
             case 'GET':
-                $response = $this->scheduleId ? $this->getScheduleById($this->employeeId, $this->scheduleId) : $this->getAllSchedules($this->employeeId);
+                $this->scheduleId ? $this->getScheduleById($this->employeeId, $this->scheduleId) : $this->getAllSchedules($this->employeeId);
                 break;
             case 'POST':
-                $response = $this->create();
+                $this->create();
                 break;
             case 'PATCH':
-                $response = $this->update($this->scheduleId);
+                $this->update($this->scheduleId);
                 break;
             case 'DELETE':
-                $response = $this->delete($this->scheduleId);
+                $this->delete($this->scheduleId);
                 break;
             default:
-                $response = $this->resourceNotFound();
+                $this->methodNotFound();
                 break;
         }
 
-        header($response['status_code_header']);
-        echo $response['body'] ? $response['body'] : null;
-    }
+        header($this->responseCode);
 
-    public function getScheduleById($employeeId, $scheduleId)
-    {
-        $result = $this->schedule->findById($employeeId, $scheduleId);
-
-        $response['status_code_header'] = 'HTTP/1.1 200 OK';
-        $response['body'] = json_encode($result);
-
-        return $response;
-    }
-
-    public function getAllSchedules($employeeId)
-    {
-        $result = $this->schedule->findAll($employeeId);
-
-        $response['status_code_header'] = 'HTTP/1.1 200 OK';
-        $response['body'] = json_encode($result);
-
-        return $response;
+        if (isset($this->responseBody)) {
+            echo $this->responseBody;
+        }
     }
 
     public function create()
     {
         $data = json_decode(file_get_contents('php://input'), TRUE);
 
-        if ($this->schedule->create($data)) {
-            $response['status_code_header'] = 'HTTP/1.1 204 No Content';
-            $response['body'] = null;
+        if ($this->schedule->create($data, $this->employeeId)) {
+            $this->responseCode = 'HTTP/1.1 204 No Content';
+            $this->responseBody = null;
         } else {
-            $response['status_code_header'] = 'HTTP/1.1 409 Conflict';
-            $response['body'] = null;
+            $this->responseCode = 'HTTP/1.1 409 Conflict';
+            $this->responseBody = null;
         }
+    }
+
+    public function getScheduleById($employeeId, $scheduleId)
+    {
+        $result = $this->schedule->findById($employeeId, $scheduleId);
+
+        $this->responseCode = 'HTTP/1.1 200 OK';
+        $this->responseBody = json_encode($result);
+    }
+
+    public function getAllSchedules($employeeId)
+    {
+        $result = $this->schedule->findAll($employeeId);
+
+        $this->responseCode = 'HTTP/1.1 200 OK';
+        $this->responseBody = json_encode($result);
     }
 
     public function update($scheduleId)
@@ -83,10 +83,8 @@ class ScheduleController
             $data = json_decode(file_get_contents('php://input'), TRUE);
             $this->schedule->update($scheduleId, $this->employeeId, $data);
 
-            $response['status_code_header'] = 'HTTP/1.1 204 No Content';
-            $response['body'] = null;
-
-            return $response;
+            $this->responseCode = 'HTTP/1.1 204 No Content';
+            $this->responseBody = null;
         }
 
         return $this->resourceNotFound();
@@ -97,10 +95,8 @@ class ScheduleController
         if ($this->schedule->findById($this->employeeId, $scheduleId)) {
             $this->schedule->delete($scheduleId);
 
-            $response['status_code_header'] = 'HTTP/1.1 204 No Content';
-            $response['body'] = null;
-
-            return $response;
+            $this->responseCode = 'HTTP/1.1 204 No Content';
+            $this->responseBody = null;
         }
 
         return $this->resourceNotFound();
@@ -108,9 +104,13 @@ class ScheduleController
 
     public function resourceNotFound()
     {
-        $response['status_code_header'] = 'HTTP/1.1 404 Not Found';
-        $response['body'] = null;
+        $this->responseCode = 'HTTP/1.1 404 Not Found';
+        $this->responseBody = null;
+    }
 
-        return $response;
+    public function methodNotFound()
+    {
+        $this->responseCode = 'HTTP/1.1 405 Method Not Allowed';
+        $this->responseBody = json_encode(array("msg" => "Method Not Allowed, try again with with different method"));
     }
 }
